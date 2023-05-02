@@ -1,0 +1,319 @@
+from tkinter import *
+from geopy.geocoders import Nominatim
+from geopy import distance
+from geopy.geocoders import ArcGIS
+import csv
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+import seaborn as sns 
+import matplotlib.pyplot as plt
+from shapely.geometry import Point
+import geopandas as gpd
+from geopandas import GeoDataFrame
+
+##
+
+root = Tk()
+root.title("Company search")
+root.geometry("1600x700")
+root.configure(background="light blue")
+
+root.columnconfigure(0, weight=1)
+root.columnconfigure(1, weight=1)
+root.columnconfigure(2, weight=1)
+root.columnconfigure(3, weight=1)
+root.columnconfigure(4, weight=1)
+
+sheet = "testSheet.csv"  ##ENTER SHEET YOU'RE USING
+f = open(sheet, "r")
+master = list(csv.reader(f, delimiter=","))
+
+##Capture each column of information from master sheet
+def address(list):
+    return [item[4] for item in list]
+
+def city(list):
+    return [item[5] for item in list]
+
+def state(list):
+    return [item[6] for item in list]
+
+def zipp(list):
+    return [item[7] for item in list]
+
+def revenue(list):
+    return [item[10] for item in list]
+
+def employee(list):
+    return [item[11] for item in list]
+
+def spe(list):
+    return [item[12] for item in list]
+
+address_list = address(master)[1:]
+city_list = city(master)[1:]
+state_list = state(master)[1:]
+zipp_list = zipp(master)[1:]
+revenue_list = revenue(master)[1:]
+employee_list = employee(master)[1:]
+spe_list = spe(master)[1:]
+
+def search():
+    ##Find if revenue is within specified range.-------------------------------------------------
+    revenue_success=[]
+    i=0
+    if(var1.get())==1:
+        while i in range(len(revenue_list)):
+            if float(revenue_list[i])>=float(rev_min.get()) and float(revenue_list[i])<=float(rev_max.get()):
+                revenue_success.append(i)
+            i+=1
+    else:
+        revenue_success=list(range(0,len(revenue_list)))
+
+    ##Find if employee count is within specified range.------------------------------------------
+    employee_success=[]
+    i=0
+    if(var2.get())==1:
+        while i in range(len(employee_list)):
+            if float(employee_list[i])>=float(employee_min.get()) and float(employee_list[i])<=float(employee_max.get()):
+                employee_success.append(i)
+            i+=1
+    else:
+        employee_success=list(range(0,len(employee_list)))
+
+    ##Find if sales per employee is within specified range.--------------------------------------
+    spe_success=[]
+    i=0
+    if(var3.get())==1:
+        while i in range(len(spe_list)):
+            if float(spe_list[i])>=float(spe_min.get()) and float(spe_list[i])<=float(spe_max.get()):
+                spe_success.append(i)
+            i+=1
+    else:
+        spe_success=list(range(0,len(spe_list)))
+
+    ##Find longitude and latitude of each location and find miles between them.------------------
+    address_success=[]
+    latlong=[]
+    latlong_success=[]
+    i=0
+##    if(var4.get())==1:
+    while i in range(len(address_list)):
+        nom=ArcGIS()
+        coordinates1 = nom.geocode(str(distance_address.get()))
+        coordinates2 = nom.geocode(address_list[i] +", "+ city_list[i] +", "+ state_list[i] +", "+ zipp_list[i] +", USA")
+
+        lat1,long1=(coordinates1.latitude),(coordinates1.longitude)
+        lat2,long2=(coordinates2.latitude),(coordinates2.longitude)
+            
+        latlong.append([lat2,long2]) ##capture latitude and longitude
+            
+        place1=(lat1,long1)
+        place2=(lat2,long2)
+        if(var4.get())==1:
+            if distance.distance(place1,place2).miles <= float(distance_max.get()):
+                address_success.append(i) 
+        else:
+            address_success=list(range(0,len(address_list)))
+        i+=1
+
+    ##Find if state matches search criteria-------------------------------------------------------
+    state_success=[]
+    i=0
+    if(var5.get())==1:
+        while i in range(len(state_list)):
+            if state.get()==state_list[i]:
+                state_success.append(i)
+            i+=1
+    else:
+        state_success=list(range(0,len(state_list)))
+            
+
+    ##Create array of ID numbers in all specified criteria.---------------------------------------
+    sol=[]
+    sol=list(set(revenue_success).intersection(employee_success,spe_success,address_success,state_success))
+    sol=sorted(sol)
+
+    for i in sol:
+        latlong_success.append(latlong[i])
+
+    
+    ##Create final sheet of companies.
+    answer=[]
+    i=0
+    for i in sol:
+        answer.append(master[i+1])
+
+    with open('answer.csv', 'w', newline='') as file:
+            writer = csv.writer(file, delimiter=',')
+            writer.writerow(['','','COMPANY','INDUSTRY','ADDRESS','CITY','STATE','ZIP','PHONE','WEBSITE',
+                             'REVENUE','EMPLOYEE','$/EMPL','CONTACT','POS','EMAIL'])
+            writer.writerows(answer)
+
+    ##Drawing analytical figures pulled from master and answer CSV sheet---------------------------
+    if(var6.get()==1):
+        data = pd.read_csv(sheet)
+
+        data2 = data.iloc[0:len(city_list), [2, 4, 5, 6, 7, 10, 11, 12]]
+        
+        b = data2.plot.scatter(x = 'REVENUE', y = 'EMPLOYEE', figsize=(10,10), title="Master Sheet Analytics")
+        b.set_ylim([0,300])
+        
+        a = data2.plot.scatter(y = 'REVENUE', x = 'STATE', figsize=(30,10), title="Master Sheet Analytics") 
+        a.set_ylim([0, 100])
+        
+        x = []
+        y = []
+        for i in latlong:
+            x.append(i[0])
+            y.append(i[1])
+            
+        geometry = [Point(xy) for xy in zip(y, x)]
+        
+        gdf = GeoDataFrame(latlong, geometry=geometry)
+        
+        world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+
+        fig, ax = plt.subplots(figsize=(12, 6))
+        world.query("continent == 'North America'").plot(ax=ax, edgecolor='black',color='white')
+        plt.scatter(y,x,s=10)
+        plt.xlim([-130, -60])
+        plt.ylim([20, 55])
+        plt.xlabel("Longitude")
+        plt.ylabel("Latitude")
+        plt.title("Master Sheet Map")
+        plt.show()
+        
+        ##-----answer-----
+        data3 = pd.read_csv("answer.csv")
+        data4 = data3.iloc[0:len(answer), [2, 4, 5, 6, 7, 10, 11, 12]]
+        
+        c = data3.plot.scatter(x = 'REVENUE', y = 'EMPLOYEE', figsize=(10,10), title="Answer Sheet Analytics")
+        c.set_ylim([0,300])
+
+        d = data3.plot.scatter(y = 'REVENUE', x = 'STATE', figsize=(30,10), title="Answer Sheet Analytics")        
+        d.set_ylim([0,100])
+        plt.show()
+        
+        x = []
+        y = []
+        for i in latlong_success:
+            x.append(i[0])
+            y.append(i[1])
+            
+        geometry = [Point(xy) for xy in zip(y, x)]
+        
+        gdf = GeoDataFrame(latlong_success, geometry=geometry)
+        
+        world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+
+        fig, ax = plt.subplots(figsize=(12, 6))
+        world.query("continent == 'North America'").plot(ax=ax, edgecolor='black',color='white')
+        plt.scatter(y,x,s=10)
+        plt.xlim([-130, -60])
+        plt.ylim([20, 55])
+        plt.xlabel("Longitude")
+        plt.ylabel("Latitude")
+        plt.title("Answer Sheet Map")
+        plt.show()
+
+##maybe count companies in each city and have bigger bubble for cities with most companies
+    
+
+##Interface information
+test = Label(root, text="Whitestone Associates, LLC Company Search Program", fg="black", bg="light blue", font="Arial 50 underline")
+test.grid(row=0, column=0, columnspan=5, pady=40)
+
+var1 = IntVar()
+revbutton = Checkbutton(root, bg="light blue", variable=var1)
+revenue = Label(root, text="Enter revenue (mil):", fg="black", bg="light blue", font="Arial 40")
+rev_min = Entry(root, fg="red", bg="white", font="Arial 40", width=5, justify='center')
+rev_to = Label(root, text="to", fg="black", bg="light blue", font="Arial 40")
+rev_max = Entry(root, fg="red", bg="white", font="Arial 40", width=5, justify='center')
+
+var2 = IntVar()
+empbutton = Checkbutton(root, bg="light blue", variable=var2)
+employee = Label(root, text="Enter employee count: ", fg="black", bg="light blue", font="Arial 40")
+employee_min = Entry(root, fg="red", bg="white", font="Arial 40", width=5, justify='center')
+employee_to = Label(root, text="to", fg="black", bg="light blue", font="Arial 40")
+employee_max = Entry(root, fg="red", bg="white", font="Arial 40", width=5, justify='center')
+
+var3 = IntVar()
+spebutton = Checkbutton(root, bg="light blue", variable=var3)
+spe = Label(root, text="Enter rev/employee ratio: ", fg="black", bg="light blue", font="Arial 40")
+spe_min = Entry(root, fg="red", bg="white", font="Arial 40", width=5, justify='center')
+spe_to = Label(root, text="to", fg="black", bg="light blue", font="Arial 40")
+spe_max = Entry(root, fg="red", bg="white", font="Arial 40", width=5, justify='center')
+
+var4 = IntVar()
+disbutton = Checkbutton(root, bg="light blue", variable=var4)
+distance_label = Label(root, text="Enter distance:", fg="black", bg="light blue", font="Arial 40")
+distance_max = Entry(root, fg="red", bg="white", font="Arial 40", width=5, justify='center')
+distance_from = Label(root, text=" miles from ", fg="black", bg="light blue", font="Arial 40")
+distance_address = Entry(root, fg="red", bg="white", font="Arial 40", width=15, justify='center')
+
+var5 = IntVar()
+statebutton = Checkbutton(root, bg="light blue", variable=var5)
+state_label = Label(root, text="Enter state:", fg="black", bg="light blue", font="Arial 40")
+state = Entry(root, fg="red", bg="white", font="Arial 40", width=5, justify='center')
+
+var6 = IntVar()
+analyticsbutton = Checkbutton(root, bg="light blue", variable=var6)
+analytics_label = Label(root, text="Show analytics", fg="black", bg="light blue", font="Arial 40")
+
+
+search = Button(root, command=search, text="Search", font="Arial 30")
+
+revbutton.grid(row=1, column=0)
+revbutton.select()
+revenue.grid(row=1, column=1, pady=10)
+rev_min.grid(row=1, column=2)
+rev_min.insert(1, "0")
+rev_to.grid(row=1, column=3)
+rev_max.grid(row=1, column=4)
+rev_max.insert(1, "20")
+
+empbutton.grid(row=2, column=0)
+empbutton.select()
+employee.grid(row=2, column=1, pady=10)
+employee_min.grid(row=2, column=2)
+employee_min.insert(1, "0")
+employee_to.grid(row=2, column=3)
+employee_max.grid(row=2, column=4)
+employee_max.insert(1, "100")
+
+spebutton.grid(row=3, column=0)
+spebutton.select()
+spe.grid(row=3, column=1, pady=10)
+spe_min.grid(row=3, column=2)
+spe_min.insert(1, "0")
+spe_to.grid(row=3, column=3)
+spe_max.grid(row=3, column=4)
+spe_max.insert(1, "1.0")
+
+disbutton.grid(row=4, column=0)
+disbutton.select()
+distance_label.grid(row=4, column=1, pady=10)
+distance_max.grid(row=4, column=2)
+distance_max.insert(1, "100")
+distance_from.grid(row=4, column=3)
+distance_address.grid(row=4, column=4)
+distance_address.insert(1, "JFK Airport")
+
+statebutton.grid(row=5, column=0)
+statebutton.select()
+state_label.grid(row=5, column=1, pady=10)
+state.grid(row=5, column=2)
+state.insert(1, "NY")
+
+analyticsbutton.grid(row=6, column=0)
+analyticsbutton.select()
+analytics_label.grid(row=6, column=1, pady=40)
+
+
+search.grid(row=6, column=2)
+
+root.mainloop()
+
