@@ -13,8 +13,7 @@ from shapely.geometry import Point
 import geopandas as gpd
 from geopandas import GeoDataFrame
 
-##
-
+##Initialize GUI 
 root = Tk()
 root.title("Company search")
 root.geometry("1600x700")
@@ -64,13 +63,13 @@ def search():
     ##Find if revenue is within specified range.-------------------------------------------------
     revenue_success=[]
     i=0
-    if(var1.get())==1:
-        while i in range(len(revenue_list)):
-            if float(revenue_list[i])>=float(rev_min.get()) and float(revenue_list[i])<=float(rev_max.get()):
-                revenue_success.append(i)
+    if(var1.get())==1:      ##If checkbox is checked: 
+        while i in range(len(revenue_list)):      #Scan each item of list
+            if float(revenue_list[i])>=float(rev_min.get()) and float(revenue_list[i])<=float(rev_max.get()): ##If item is within range
+                revenue_success.append(i)     #append success list with this item
             i+=1
     else:
-        revenue_success=list(range(0,len(revenue_list)))
+        revenue_success=list(range(0,len(revenue_list)))   #If checkbox not checked, all are passed
 
     ##Find if employee count is within specified range.------------------------------------------
     employee_success=[]
