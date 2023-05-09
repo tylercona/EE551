@@ -3,7 +3,7 @@ Stevens EE551 Final project.
 
 This is a submission for EE551 - Engineering Programming: Python
 
-This project utilizes material covered in the course such as installed libraries, functions, if else statementsm, for loops, while loops and file ops.
+This project utilizes material covered in the course such as installed libraries, functions, if else statements, for loops, while loops and file ops.
 
 The idea of the project I took on building is a Python tool that takes in a CSV sheet of public companies info such as their industry, geographic location, revenue, number of employees etc. and can search through the sheet for companies that match criteria user inputted via graphical user interface, and creates analytical graphs about this data and saves a new CSV sheet of the resultant companies that fit this criteria. Resultant graphs would be Employee count vs Revenue, Revenue vs. State, and a map of the US graphing these points based on longitude and latitude. This program would utilize different packages and modules like matplotlib, numpy, pandas, etc. and include many different functions.
 
