@@ -12,7 +12,9 @@ Upon running the code the user is faced with the Graphical User Interface:
 <img width="1712" alt="Screenshot 2023-05-02 at 1 22 25 PM" src="https://user-images.githubusercontent.com/78391004/235738927-a022e8e4-846e-4466-9143-d8da653adb44.png">
 
 Where the user can:
+
 (1) Input a range of criteria they want to search the CSV sheet for.
+
 (2) Select which criteria they want to search using the checkboxes.
 
 The search algorithm then takes the user input and scans the information found in the CSV sheet to find which companies fit the specified criteria.
