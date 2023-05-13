@@ -30,3 +30,11 @@ Where the user can:
 The search algorithm then takes the user input and scans the information found in the CSV sheet to find which companies fit the specified criteria.
 
 When the search algorithm is complete, a new resultant CSV sheet called "answer.csv" is saved and analytical graphs are printed.
+
+The following are example analytical graphs:
+
+<img width="550" alt="Screenshot 2023-05-13 at 5 08 41 PM" src="https://github.com/tylercona/EE551/assets/78391004/04b51db6-3803-4c26-bd33-a4442570a0b5">
+
+<img width="1320" alt="Screenshot 2023-05-13 at 5 09 37 PM" src="https://github.com/tylercona/EE551/assets/78391004/a6a02df7-7e86-4efc-b882-99b0ef726da7">
+
+<img width="550" alt="Screenshot 2023-05-13 at 5 10 27 PM" src="https://github.com/tylercona/EE551/assets/78391004/86a7f12e-b5fe-4c11-8941-881c4c496d28">
