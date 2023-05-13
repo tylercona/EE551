@@ -16,14 +16,19 @@ Where the user can:
 (1) Input a range of criteria they want to search the CSV sheet for such as:
 
 - Range of company revenue in millions of dollars. 
+  - Algorithm checks if company is within specified revenue range.
 
 - Employee count of company. 
+  - Algorithm checks if company is within specified employee count range.
 
 - Dollar sales per employee ratio in millions of dollars per employee. 
+  - Algorithm checks if company is within specified $/emp range.
 
 - Distance from a geographic landmark. 
+  - Algorithm finds company's longitude and latitude and compares it with landmark and finds distance between them in miles, and checks if distance is <= than specified.
 
 - Specific US state of headquarters. 
+  - Checks if company state is equal to specified state.
 
 (2) Select which criteria they want to search using the checkboxes on the left side.
 
@@ -37,17 +42,29 @@ The following are example analytical graphs:
 
 Master sheet analytics:
 
+Employee count vs. Revenue
+
 <img width="550" alt="Screenshot 2023-05-13 at 5 08 41 PM" src="https://github.com/tylercona/EE551/assets/78391004/04b51db6-3803-4c26-bd33-a4442570a0b5">
 
+Revenue vs. State
+
 <img width="1320" alt="Screenshot 2023-05-13 at 5 09 37 PM" src="https://github.com/tylercona/EE551/assets/78391004/a6a02df7-7e86-4efc-b882-99b0ef726da7">
+
+Latitude vs. Longitude
 
 <img width="550" alt="Screenshot 2023-05-13 at 5 10 27 PM" src="https://github.com/tylercona/EE551/assets/78391004/86a7f12e-b5fe-4c11-8941-881c4c496d28">
 
 Resultant subset analytics:
 
+Employee count vs. Revenue
+
 <img width="550" alt="Screenshot 2023-05-13 at 5 17 37 PM" src="https://github.com/tylercona/EE551/assets/78391004/5538c034-f9de-437e-a2c6-fa3ba8860885">
 
+Revenue vs. State
+
 <img width="1318" alt="Screenshot 2023-05-13 at 5 18 12 PM" src="https://github.com/tylercona/EE551/assets/78391004/357c0b0a-9ec1-4c10-9681-aca16a80b873">
+
+Latitude vs. Longitude
 
 <img width="550" alt="Screenshot 2023-05-13 at 5 18 52 PM" src="https://github.com/tylercona/EE551/assets/78391004/bf04ace8-6857-46d9-a325-399530cc1b39">
 
