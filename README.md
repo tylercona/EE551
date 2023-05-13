@@ -13,9 +13,19 @@ Upon running the code the user is faced with the Graphical User Interface:
 
 Where the user can:
 
-(1) Input a range of criteria they want to search the CSV sheet for.
+(1) Input a range of criteria they want to search the CSV sheet for such as:
 
-(2) Select which criteria they want to search using the checkboxes.
+- Range of company revenue in millions of dollars. 
+
+- Employee count of company. 
+
+- Dollar sales per employee ratio in millions of dollars per employee. 
+
+- Distance from a geographic landmark. 
+
+- Specific US state of headquarters. 
+
+(2) Select which criteria they want to search using the checkboxes on the left side.
 
 The search algorithm then takes the user input and scans the information found in the CSV sheet to find which companies fit the specified criteria.
 
